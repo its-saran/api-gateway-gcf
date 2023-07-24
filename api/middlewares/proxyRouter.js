@@ -3,7 +3,7 @@ import utils from '../utils/helper.js'
 
 const proxyRouter = () => async (req, res, next) => {
 
-    const proxyUrl = req.log.proxyUrl
+    const proxyUrl = req.log.proxyRouterUrl
     axios.get(proxyUrl)
       .then(response => {
           res.send(response.data)

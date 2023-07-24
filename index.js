@@ -8,7 +8,7 @@ import proxyRoute from './api/middlewares/proxyRouter.js';
 import authenticate from './api/middlewares/authenticate.js';
 import rateLimiter from './api/middlewares/rateLimiter.js';
 import incomingLogger from './api/middlewares/incomingLogger.js';
-// import outgoingLogger from './api/middlewares/outgoingLogger.js';
+import outgoingLogger from './api/middlewares/outgoingLogger.js';
 import errorHandler from './api/middlewares/errorHandler.js'
 
 
@@ -18,7 +18,7 @@ export const gateway = async (req, res) => {
     const config = await getConfig();
     const cache = apicache.middleware(config.apicache)
     const incomingLog = incomingLogger(config)
-    // const outgoingLog = outgoingLogger(config)
+    const outgoingLog = outgoingLogger(config)
     const rateLimit = rateLimiter(config.rateLimit)
 
     app.set('trust proxy', 1);
@@ -27,7 +27,7 @@ export const gateway = async (req, res) => {
     app.use(cors());
     app.use(cache);
     app.use(incomingLog); // Logging middleware for requests
-    // app.use(outgoingLog); // Logging middleware for responses
+    app.use(outgoingLog); // Logging middleware for responses
     app.use('/api', authenticate); // Authenticator middleware for '/api' route
     app.use('/demo', rateLimit); // Rate limiter middleware for '/demo' route
     app.use(['/api', '/demo'], proxyRoute); // Proxy router middleware
