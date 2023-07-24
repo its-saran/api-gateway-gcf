@@ -1,0 +1,30 @@
+{
+  "name": "api_gateway",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "functions-framework --target=gateway",
+    "deploy": "gcloud functions deploy api --runtime nodejs20 --trigger-http --allow-unauthenticated --entry-point gateway --timeout 530s --memory 256MB --max-instances 10 --min-instances 10 --region asia-south1 --no-gen2"
+  },
+  "keywords": [],
+  "author": "Saran",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.3.0",
+    "apicache": "^1.6.3",
+    "axios": "^1.4.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.7.1",
+    "firebase-admin": "^11.10.1",
+    "http-errors": "^2.0.0",
+    "moment-timezone": "^0.5.43",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
