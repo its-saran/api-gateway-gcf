@@ -22,8 +22,7 @@ const incomingLogger = (config) => async (req, res, next) => {
     let idSuffix = '-UNK'
 
     const serviceName = config.serviceName
-    console.log(`Host: ${req.get('host')}`)
-    console.log(`Request url: ${req.url}`)
+    const target = config.target
     const endpoint = Object.keys(config.Endpoints).find(key => req.url.includes(key));
 
     if (endpoint) {
@@ -34,15 +33,30 @@ const incomingLogger = (config) => async (req, res, next) => {
         req.log.gatewayReq.apiRoute = endpointData.apiRoute;
         idSuffix = endpointData.idSuffix;
     }
-    
-    req.log.service.name = config.serviceName
-    req.log.id = utils.timeId() + idSuffix
-    req.log.path = `Logs/${utils.capitalizeString(req.log.gatewayReq.service)}/${utils.capitalizeString(req.log.gatewayReq.apiType)}Logs`
-    
-    const requestLog = `Request | Reference ID: ${req.log.id} | Method: ${req.method} | URL: ${req.originalUrl} | IP: ${req.ip} `
+
+    const method = req.method
+    const originalUrl = req.originalUrl
+    const clientIp = req.ip
+
+    const service = req.log.gatewayReq.service
+    const apiType = req.log.gatewayReq.apiType
+    const logId = utils.timeId() + idSuffix
+    const logPath = `Logs/${utils.capitalizeString(service)}/${utils.capitalizeString(apiType)}Logs`
+
+    const serviceQuery = `${originalUrl}`.replace(`${service}/`, '').replace(/&?apikey=[^&]*/g, '')
+    const logQuery = `&logId=${logId}&logPath=${logPath}`
+    const proxyUrl = target+service+serviceQuery+logQuery
+
+    const requestLog = `Request | Reference ID: ${logId} | Method: ${method} | URL: ${originalUrl} | IP: ${clientIp} `
     utils.reqResMessage(serviceName, requestLog, req.log.console)
 
-    await firestoreDb.createDoc(req.log.path, req.log.id, req.log)
+    const logMessage = (message) => utils.logMessage(serviceName, logId, message, req.log.console);
+    logMessage(`Forwarded url: ${proxyUrl}`)
+
+    req.log.id = logId
+    req.log.proxyUrl = proxyUrl
+    await firestoreDb.createDoc(logPath, logId, req.log)
+
     next();
 };
   

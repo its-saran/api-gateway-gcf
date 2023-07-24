@@ -3,7 +3,7 @@ import cors from 'cors';
 import apicache from 'apicache'
 
 import getConfig from './api/utils/getConfig.js';
-import proxyRouter from './api/middlewares/proxyRouter.js';
+import proxyRoute from './api/middlewares/proxyRouter.js';
 
 import authenticate from './api/middlewares/authenticate.js';
 import rateLimiter from './api/middlewares/rateLimiter.js';
@@ -20,7 +20,6 @@ export const gateway = async (req, res) => {
     const incomingLog = incomingLogger(config)
     // const outgoingLog = outgoingLogger(config)
     const rateLimit = rateLimiter(config.rateLimit)
-    const proxyRoute = proxyRouter(config.target)
 
     app.set('trust proxy', 1);
 
