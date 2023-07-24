@@ -1,27 +1,30 @@
 import axios from 'axios';
+import utils from '../utils/helper.js'
 
-const proxyMiddleware = (req, res, next) => {
+const proxyRouter = (target) => async (req, res, next) => {
 
-    const target = `https://asia-south1-whrilapi.cloudfunctions.net/`
-    const service = req.log.gatewayReq.service
-    const serviceQuery = `${req.originalUrl}`.replace(`${req.log.gatewayReq.service}/`, '').replace(/&?apikey=[^&]*/g, '')
-    const logQuery = `&logId=${req.log.id}&logPath=${req.log.path}`
+    let log = req.log
+    const logMessage = (message) => utils.logMessage(log.service.name, log.id, message, log.console);
+    const errorMessage = (message) => utils.errorMessage(log.service.name, log.id, message, log.console);
+
+    const service = log.gatewayReq.service
+    const serviceQuery = `${req.originalUrl}`.replace(`${service}/`, '').replace(/&?apikey=[^&]*/g, '')
+    const logQuery = `&logId=${log.id}&logPath=${log.path}`
     const finalUrl = target+service+serviceQuery+logQuery
-    console.log(`Final proxy url: ${finalUrl}`)
+    logMessage(`Forwarded url: ${finalUrl}`)
 
     axios.get(finalUrl)
       .then(response => {
-          console.log('Response sent')
-          res.send({
-            data: req.testData,
-            responseData: response.data
-        })
+          res.send(response.data)
+          logMessage('Response sent')
       })
       .catch(error => {
-          console.error('Error:', error.message);
-          res.send(error.message)
+          errorMessage(`Error: ${error.message}`);
+          const err = utils.createError({status: 500, details: "Internal server error"});
+          res.status(err.error.status).json(err);
       });
+    req.log = log
 };
 
-export default proxyMiddleware;
+export default proxyRouter;
 

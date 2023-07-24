@@ -34,7 +34,8 @@ const incomingLogger = (config) => async (req, res, next) => {
         req.log.gatewayReq.apiRoute = endpointData.apiRoute;
         idSuffix = endpointData.idSuffix;
     }
-
+    
+    req.log.service.name = config.serviceName
     req.log.id = utils.timeId() + idSuffix
     req.log.path = `Logs/${utils.capitalizeString(req.log.gatewayReq.service)}/${utils.capitalizeString(req.log.gatewayReq.apiType)}Logs`
     
