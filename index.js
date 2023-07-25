@@ -21,8 +21,6 @@ export const gateway = async (req, res) => {
     const outgoingLog = outgoingLogger(config)
     const rateLimit = rateLimiter(config.rateLimit)
 
-    app.set('trust proxy', 1);
-
     app.use(jsonParser)
     app.use(cors());
     app.use(cache);
