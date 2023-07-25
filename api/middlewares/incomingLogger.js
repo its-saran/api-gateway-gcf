@@ -43,31 +43,40 @@ const incomingLogger = (config) => async (req, res, next) => {
         idSuffix = endpointData.idSuffix;
     }
 
-
     const service = req.log.gatewayReq.service
     const apiType = req.log.gatewayReq.apiType
     const logId = utils.timeId() + idSuffix
     const logPath = `Logs/${utils.capitalizeString(service)}/${utils.capitalizeString(apiType)}Logs`
-
-    const serviceQuery = `${originalUrl}`.replace(`${service}/`, '').replace(/&?apikey=[^&]*/g, '')
     const logQuery = `&logId=${logId}&logPath=${logPath}`
-    const proxyRouterUrl = target+service+serviceQuery+logQuery
+
+
+    let proxyUrl 
+    if(originalUrl.includes('/api')){
+        proxyUrl = target + service + originalUrl.split(`/${service}`).join("")
+    } else {
+        proxyUrl  = target + service + `/${apiRoute}`+ originalUrl.split(`/${service}`).join("")
+    }
+
+    const url = new URL(proxyUrl);
+    url.searchParams.delete('apikey');
+    const finalProxyUrl = url.toString() + logQuery
 
     const requestLog = `Request | Reference ID: ${logId} | Method: ${method} | URL: ${originalUrl} | IP: ${clientIp} `
     utils.reqResMessage(serviceName, requestLog, req.log.console)
 
     const logMessage = (message) => utils.logMessage(serviceName, logId, message, req.log.console);
-    logMessage(`Forwarded url: ${proxyRouterUrl}`)
+    logMessage(`Forwarded url: ${finalProxyUrl}`)
 
     req.log.id = logId
     req.log.path = logPath
-    req.log.proxyUrl = proxyRouterUrl
+    req.log.proxyUrl = finalProxyUrl
     await firestoreDb.createDoc(logPath, logId, req.log)
 
     next();
 };
   
 export default incomingLogger;
+
 
 
 
