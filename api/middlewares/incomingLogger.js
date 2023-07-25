@@ -40,22 +40,22 @@ const incomingLogger = (config) => async (req, res, next) => {
         req.log.gatewayReq.service  = endpointData.service;
         req.log.gatewayReq.apiType = endpointData.apiType;
         req.log.gatewayReq.apiRoute = endpointData.apiRoute;
+        req.log.gatewayReq.version = endpointData.version;
         idSuffix = endpointData.idSuffix;
     }
 
     const service = req.log.gatewayReq.service
     const apiType = req.log.gatewayReq.apiType
+    const apiRoute = req.log.gatewayReq.apiRoute
+    const version =  req.log.gatewayReq.version
+
     const logId = utils.timeId() + idSuffix
     const logPath = `Logs/${utils.capitalizeString(service)}/${utils.capitalizeString(apiType)}Logs`
     const logQuery = `&logId=${logId}&logPath=${logPath}`
 
-
-    let proxyUrl 
-    if(originalUrl.includes('/api')){
-        proxyUrl = target + service + originalUrl.split(`/${service}`).join("")
-    } else {
-        proxyUrl  = target + service + `/${apiRoute}`+ originalUrl.split(`/${service}`).join("")
-    }
+    let splitUrl =  originalUrl.split(`/${service}`).join("")
+    splitUrl = splitUrl.split(`/${version}`).join("")
+    const proxyUrl = target + service + `/${apiRoute}`+ splitUrl
 
     const url = new URL(proxyUrl);
     url.searchParams.delete('apikey');

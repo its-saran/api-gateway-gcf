@@ -7,7 +7,6 @@ const proxyRouter = async (req, res, next) => {
     axios.get(proxyUrl)
       .then(response => {
             res.send(response.data)
-            console.log('Response sent')
       })
       .catch(error => {
             console.log(error)

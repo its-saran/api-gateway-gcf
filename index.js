@@ -26,9 +26,9 @@ export const gateway = async (req, res) => {
     app.use(cache);
     app.use(incomingLog); // Logging middleware for requests
     app.use(outgoingLog); // Logging middleware for responses
-    app.use('/api', authenticate); // Authenticator middleware for '/api' route
+    app.use('/v1', authenticate); // Authenticator middleware for '/api' route
     app.use('/demo', rateLimit); // Rate limiter middleware for '/demo' route
-    app.use(['/api', '/demo'], proxyRouter); // Proxy router middleware
+    app.use(['/v1', '/demo'], proxyRouter); // Proxy router middleware
     app.use(errorHandler); // Error Handler middleware
 
     app(req, res);
