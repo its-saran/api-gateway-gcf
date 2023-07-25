@@ -61,7 +61,7 @@ const incomingLogger = (config) => async (req, res, next) => {
 
     req.log.id = logId
     req.log.path = logPath
-    req.log.proxyUrl = proxyUrl
+    req.log.proxyUrl = proxyRouterUrl
     await firestoreDb.createDoc(logPath, logId, req.log)
 
     next();

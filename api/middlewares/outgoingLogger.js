@@ -14,7 +14,7 @@ const outgoingLogger = (config) => async (req, res, next) => {
         const errorMessage = (message) => utils.errorMessage(logId, message, log.console);
 
         const endTimestamp = Date.now();
-        const totalTime = ((endTimestamp - req.startTimestamp) / 1000).toFixed(2); // Convert to seconds
+        const totalTime = ((endTimestamp - req.log.startTime) / 1000).toFixed(2); // Convert to seconds
         const memoryUsage =(process.memoryUsage().rss / (1024 * 1024)).toFixed(2); // Get memory usage in megabytes with 2 decimal places
         const statusCode = res.statusCode
         const contentLength = parseInt(res.get('Content-Length') || 0, 10);
