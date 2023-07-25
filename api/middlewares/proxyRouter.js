@@ -11,8 +11,7 @@ const proxyRouter = async (req, res, next) => {
       })
       .catch(error => {
             console.log(error)
-            console.log(`Error: ${error.message}`);
-            const err = utils.createError({status: 500, details: "Internal server error"});
+            const err = utils.createError({status: 500});
             res.status(err.error.status).json(err);
       });
 };
